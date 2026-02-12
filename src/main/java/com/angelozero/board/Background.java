@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Background {
 
-    private static final String IMAGE = "/images/flappybirdbg.png";
+    private static final String IMAGE = "/images/background.png";
     private final int width;
     private final int height;
     private static final int BOARD_WIDTH = 360;

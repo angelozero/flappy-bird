@@ -1,24 +1,32 @@
 package com.angelozero.components;
 
+import com.angelozero.components.utils.PipeInfo;
+
+import java.util.List;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
+import java.util.Random;
 
-public class Bird implements GameComponent {
+public class Pipe implements GameComponent {
 
-    private static final String IMAGE = "/images/flappybird.png";
-    private static final int WIDTH = 34;
-    private static final int HEIGHT = 24;
+    private static final int WIDTH = 64;
+    private static final int HEIGHT = 512;
+    private final PipeInfo pipeInfo;
     private int posX;
     private int posY;
     private int velocity;
     private int gravity;
+    private boolean isPassed;
 
-    public Bird(int posX, int posY, int velocity, int gravity) {
+    public Pipe(PipeInfo pipeInfo, int posX, int posY, int velocity, int gravity) {
+        this.pipeInfo = pipeInfo;
         this.posX = posX;
         this.posY = posY;
         this.velocity = velocity;
         this.gravity = gravity;
+        this.isPassed = false;
     }
 
     public void setVelocity(int velocity) {
@@ -27,12 +35,12 @@ public class Bird implements GameComponent {
 
     @Override
     public int xPos() {
-        return posX / 8;
+        return posX;
     }
 
     @Override
     public int yPos() {
-        return posY / 2;
+        return posY;
     }
 
     @Override
@@ -47,14 +55,16 @@ public class Bird implements GameComponent {
 
     @Override
     public Image image() {
-        var birdImage = Objects.requireNonNull(getClass().getResource(IMAGE));
+        var birdImage = Objects.requireNonNull(getClass().getResource(pipeInfo.getValue()));
         return new ImageIcon(birdImage).getImage();
     }
 
     @Override
     public void move() {
-        this.velocity += this.gravity;
-        this.posY += velocity;
-        this.posY = Math.max(posY, 0);
+        this.posX += this.velocity;
+    }
+
+    public static int getRandomPlace(int position) {
+        return (int) (0 - (double) position / 4 - Math.random() * position / 2);
     }
 }

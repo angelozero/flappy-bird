@@ -2,37 +2,27 @@ package com.angelozero;
 
 import com.angelozero.board.Background;
 import com.angelozero.components.Bird;
+import com.angelozero.components.Pipe;
+import com.angelozero.components.utils.PipeInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Objects;
 
-public class FlappyBird extends JPanel implements ActionListener, KeyListener {
-
-
+public class FlappyBird extends JPanel implements KeyListener {
     private final Background background;
     private final Bird bird;
-    private final Timer gameLoop;
-    private final Image topPipe;
-    private final Image bottomPipe;
+    private final List<Pipe> topPipeList = new ArrayList<>();
 
     public FlappyBird() {
         this.background = new Background();
-        this.bird = new Bird(background.getHeight(), background.getWidth(), 0, -25, 0, 1);
-        this.gameLoop = new Timer(1000 / 60, this);
-        gameLoop.start();
+        this.bird = new Bird(background.getHeight(), background.getWidth(), -25, 1);
 
-        // Flappy Bird - Bottom
-        var bottomPipeImage = Objects.requireNonNull(getClass().getResource("/images/bottompipe.png"));
-        this.bottomPipe = new ImageIcon(bottomPipeImage).getImage();
-
-        // Flappy Bird - Top
-        var topPipeImage = Objects.requireNonNull(getClass().getResource("/images/toppipe.png"));
-        this.topPipe = new ImageIcon(topPipeImage).getImage();
+        startTimers();
 
         setPreferredSize(new Dimension(background.getWidth(), background.getHeight()));
         setBackground(Color.blue);
@@ -46,17 +36,11 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         draw(g);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        bird.move();
-        repaint();
-    }
-
 
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            bird.setVelocityY(-15);
+            bird.setVelocity(-15);
         }
     }
 
@@ -71,5 +55,21 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     private void draw(Graphics g) {
         g.drawImage(background.image(), 0, 0, background.getWidth(), background.getHeight(), null);
         g.drawImage(bird.image(), bird.xPos(), bird.yPos(), bird.width(), bird.height(), null);
+        topPipeList.forEach(pipe -> g.drawImage(pipe.image(), pipe.xPos(), pipe.yPos(), pipe.width(), pipe.height(), null));
+    }
+
+    private void startTimers() {
+        var placePipesTimer = new Timer(1500, _ -> {
+            topPipeList.add(new Pipe(PipeInfo.TOP, background.getWidth(), Pipe.getRandomPlace(background.getHeight()), -2, 0));
+        });
+
+        var gameLoopTimer = new Timer(1000 / 60, _ -> {
+            bird.move();
+            repaint();
+            topPipeList.forEach(Pipe::move);
+        });
+
+        placePipesTimer.start();
+        gameLoopTimer.start();
     }
 }
