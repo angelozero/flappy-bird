@@ -2,12 +2,9 @@ package com.angelozero.components;
 
 import com.angelozero.components.utils.PipeInfo;
 
-import java.util.List;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
-import java.util.Random;
 
 public class Pipe implements GameComponent {
 
@@ -17,20 +14,14 @@ public class Pipe implements GameComponent {
     private int posX;
     private int posY;
     private int velocity;
-    private int gravity;
     private boolean isPassed;
 
-    public Pipe(PipeInfo pipeInfo, int posX, int posY, int velocity, int gravity) {
+    public Pipe(PipeInfo pipeInfo, int posX, int posY, int velocity) {
         this.pipeInfo = pipeInfo;
         this.posX = posX;
         this.posY = posY;
         this.velocity = velocity;
-        this.gravity = gravity;
         this.isPassed = false;
-    }
-
-    public void setVelocity(int velocity) {
-        this.velocity = velocity;
     }
 
     @Override

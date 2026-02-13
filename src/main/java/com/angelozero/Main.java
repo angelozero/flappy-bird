@@ -14,10 +14,10 @@ public class Main {
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        FlappyBird flappyBird = new FlappyBird();
-        frame.add(flappyBird);
+        FlappyBirdGame flappyBirdGame = new FlappyBirdGame();
+        frame.add(flappyBirdGame);
         frame.pack();
-        flappyBird.requestFocus();
+        flappyBirdGame.requestFocus();
         frame.setVisible(true);
     }
 }

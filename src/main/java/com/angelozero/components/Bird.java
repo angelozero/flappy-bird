@@ -1,5 +1,8 @@
 package com.angelozero.components;
 
+import com.angelozero.board.Background;
+import com.angelozero.extra.FlappyBirdFallException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
@@ -13,12 +16,22 @@ public class Bird implements GameComponent {
     private int posY;
     private int velocity;
     private int gravity;
+    private int backgroundHeight;
 
-    public Bird(int posX, int posY, int velocity, int gravity) {
+    public Bird(int posX, int posY, int velocity, int gravity, int backgroundHeight) {
         this.posX = posX;
         this.posY = posY;
         this.velocity = velocity;
         this.gravity = gravity;
+        this.backgroundHeight = backgroundHeight;
+    }
+
+    public Bird(Background background, int velocity, int gravity) {
+        this.posX = background.getHeight();
+        this.posY = background.getWidth();
+        this.velocity = velocity;
+        this.gravity = gravity;
+        this.backgroundHeight = background.getHeight();
     }
 
     public void setVelocity(int velocity) {
@@ -56,5 +69,9 @@ public class Bird implements GameComponent {
         this.velocity += this.gravity;
         this.posY += velocity;
         this.posY = Math.max(posY, 0);
+
+        if (yPos() > backgroundHeight) {
+            throw new FlappyBirdFallException("Flappy Bird Fall!");
+        }
     }
 }
