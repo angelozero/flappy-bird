@@ -3,29 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <title>Flappy Bird Java</title>
-    <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
-</head>
-<body style="margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh;">
 
-<div id="container"></div>
+    <!-- Loader oficial do CheerpJ 3.x -->
+    <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        body {
+            background: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #f5f5f5;
+        }
+        #root {
+            text-align: center;
+        }
+        #status {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div id="cheerpj-canvas-container"></div>
+    <div id="status">Carregando Flappy Bird em Java...</div>
+</div>
 
 <script>
-    // Esta função garante que o CheerpJ só rode após o script externo carregar
-    window.onload = async function() {
-        if (typeof cheerpjInit !== 'undefined') {
-            // Inicializa o runtime
+    (async function () {
+        const statusEl = document.getElementById("status");
+
+        if (typeof cheerpjInit === "undefined") {
+            console.error("Erro: cheerpjInit não foi definido. O script loader do CheerpJ não carregou.");
+            statusEl.textContent = "Erro ao carregar o runtime Java (CheerpJ). Verifique se a URL do script está acessível.";
+            return;
+        }
+
+        try {
+            // Inicializa o runtime do CheerpJ
+            statusEl.textContent = "Inicializando runtime Java no navegador...";
             await cheerpjInit();
 
-            // Cria o display do Java dentro da página
-            cheerpjCreateDisplay(800, 600);
+            // Cria o display onde o Swing/AWT vai desenhar a janela do jogo
+            // Os valores 800x600 são o tamanho da área de renderização.
+            cheerpjCreateDisplay(800, 600, document.getElementById("cheerpj-canvas-container"));
 
-            // Executa o JAR.
-            // IMPORTANTE: Verifique se o nome do arquivo no /target/ é exatamente este
-            cheerpjRunJar("/app/target/flappybird-1.0-SNAPSHOT.jar");
-        } else {
-            console.error("Erro: O loader do CheerpJ não foi carregado corretamente.");
+            // IMPORTANTE:
+            // 1) O caminho /app/ aponta para a raiz do site no GitHub Pages.
+            // 2) Certifique-se de que o JAR esteja versionado no repositório no mesmo branch de Pages.
+            //    Exemplo recomendado: gerar o JAR em nível de raiz do projeto e commitar:
+            //    target/flappybird-1.0-SNAPSHOT.jar -> flappybird-1.0-SNAPSHOT.jar
+            // 3) Ajuste o nome do arquivo abaixo, se necessário.
+
+            statusEl.textContent = "Carregando JAR do Flappy Bird...";
+            await cheerpjRunJar("/app/flappybird-1.0-SNAPSHOT.jar");
+
+            statusEl.textContent = "Jogo iniciado. Se a janela não aparecer, verifique o console do navegador.";
+        } catch (e) {
+            console.error("Falha ao inicializar ou executar o JAR no CheerpJ:", e);
+            statusEl.textContent = "Erro ao executar o jogo. Veja o console do navegador (F12) para detalhes.";
         }
-    };
+    })();
 </script>
 </body>
 </html>
