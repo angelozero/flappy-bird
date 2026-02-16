@@ -57,15 +57,34 @@
             // Os valores 800x600 são o tamanho da área de renderização.
             cheerpjCreateDisplay(800, 600, document.getElementById("cheerpj-canvas-container"));
 
-            // IMPORTANTE:
-            // 1) O caminho /app/ aponta para a raiz do site no GitHub Pages.
-            // 2) Certifique-se de que o JAR esteja versionado no repositório no mesmo branch de Pages.
-            //    Exemplo recomendado: gerar o JAR em nível de raiz do projeto e commitar:
-            //    target/flappybird-1.0-SNAPSHOT.jar -> flappybird-1.0-SNAPSHOT.jar
-            // 3) Ajuste o nome do arquivo abaixo, se necessário.
+            // IMPORTANTE (GitHub Pages):
+            // - Em "Project Pages" (ex.: https://usuario.github.io/flappy-bird/), o site não está na raiz "/".
+            // - O /app/ do CheerpJ aponta para a raiz do DOMÍNIO ("/"), então precisamos incluir o basePath do repositório.
+            //
+            // Exemplo:
+            //   window.location.pathname = "/flappy-bird/" (ou "/flappy-bird/index.html")
+            //   JAR público           -> "/flappy-bird/flappybird-1.0-SNAPSHOT.jar"
+            //   Caminho no CheerpJ    -> "/app/flappy-bird/flappybird-1.0-SNAPSHOT.jar"
+
+            const jarFileName = "flappybird-1.0-SNAPSHOT.jar";
+            const path = window.location.pathname;
+            const basePath = path.endsWith("/") ? path : path.substring(0, path.lastIndexOf("/") + 1);
+            const jarPublicPath = basePath + jarFileName;      // ex.: /flappy-bird/flappybird-1.0-SNAPSHOT.jar
+            const jarAppPath = "/app" + jarPublicPath;         // ex.: /app/flappy-bird/flappybird-1.0-SNAPSHOT.jar
+
+            // Validação rápida para transformar "não funciona" em diagnóstico claro (404 vs. permissão vs. CORS)
+            statusEl.textContent = "Verificando se o JAR está publicado no GitHub Pages...";
+            const head = await fetch(jarPublicPath, { method: "HEAD" });
+            if (!head.ok) {
+                const msg = `Não consegui baixar o JAR em ${jarPublicPath} (HTTP ${head.status}). ` +
+                    "Confirme se o arquivo foi commitado na raiz do repositório (no branch do Pages).";
+                console.error(msg);
+                statusEl.textContent = msg;
+                return;
+            }
 
             statusEl.textContent = "Carregando JAR do Flappy Bird...";
-            await cheerpjRunJar("/app/flappybird-1.0-SNAPSHOT.jar");
+            await cheerpjRunJar(jarAppPath);
 
             statusEl.textContent = "Jogo iniciado. Se a janela não aparecer, verifique o console do navegador.";
         } catch (e) {
