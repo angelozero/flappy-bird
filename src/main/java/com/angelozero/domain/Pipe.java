@@ -1,23 +1,19 @@
-package com.angelozero.components;
+package com.angelozero.domain;
 
-import com.angelozero.components.utils.PipeInfo;
-
-import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 public class Pipe implements GameComponent {
 
     private static final int WIDTH = 64;
     private static final int HEIGHT = 512;
-    private final PipeInfo pipeInfo;
+    private final Image sprite;
     private int posX;
     private int posY;
     private int velocity;
     private boolean isPassed;
 
-    public Pipe(PipeInfo pipeInfo, int posX, int posY, int velocity) {
-        this.pipeInfo = pipeInfo;
+    public Pipe(Image sprite, int posX, int posY, int velocity) {
+        this.sprite = sprite;
         this.posX = posX;
         this.posY = posY;
         this.velocity = velocity;
@@ -44,15 +40,22 @@ public class Pipe implements GameComponent {
         return HEIGHT;
     }
 
-    @Override
-    public Image image() {
-        var birdImage = Objects.requireNonNull(getClass().getResource(pipeInfo.getValue()));
-        return new ImageIcon(birdImage).getImage();
-    }
 
     @Override
     public void move() {
         this.posX += this.velocity;
+    }
+
+    public Image getSprite() {
+        return sprite;
+    }
+
+    public boolean isPassed() {
+        return isPassed;
+    }
+
+    public void setPassed(boolean passed) {
+        isPassed = passed;
     }
 
     public static int getRandomPlace(int position) {

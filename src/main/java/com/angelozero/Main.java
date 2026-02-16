@@ -1,5 +1,7 @@
 package com.angelozero;
 
+import com.angelozero.engine.FlappyBirdGame;
+
 import javax.swing.*;
 
 public class Main {
@@ -15,6 +17,7 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         FlappyBirdGame flappyBirdGame = new FlappyBirdGame();
+
         frame.add(flappyBirdGame);
         frame.pack();
         flappyBirdGame.requestFocus();

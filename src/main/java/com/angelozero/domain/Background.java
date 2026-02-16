@@ -1,23 +1,23 @@
-package com.angelozero.board;
+package com.angelozero.domain;
 
-import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 public class Background {
 
-    private static final String IMAGE = "/images/background.png";
+    private Image sprite;
     private final int width;
     private final int height;
     private static final int BOARD_WIDTH = 360;
     private static final int BOARD_HEIGHT = 640;
 
-    public Background() {
+    public Background(Image sprite) {
+        this.sprite = sprite;
         this.width = BOARD_WIDTH;
         this.height = BOARD_HEIGHT;
     }
 
-    public Background(int width, int height) {
+    public Background(Image sprite, int width, int height) {
+        this.sprite = sprite;
         this.width = width;
         this.height = height;
     }
@@ -30,8 +30,7 @@ public class Background {
         return height;
     }
 
-    public Image image() {
-        var birdImage = Objects.requireNonNull(getClass().getResource(IMAGE));
-        return new ImageIcon(birdImage).getImage();
+    public Image getSprite() {
+        return sprite;
     }
 }

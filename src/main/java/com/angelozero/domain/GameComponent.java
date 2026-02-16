@@ -1,6 +1,5 @@
-package com.angelozero.components;
+package com.angelozero.domain;
 
-import java.awt.*;
 
 public interface GameComponent {
     int xPos();
@@ -10,8 +9,6 @@ public interface GameComponent {
     int width();
 
     int height();
-
-    Image image();
 
     void move();
 }
