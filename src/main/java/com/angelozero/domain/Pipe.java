@@ -1,15 +1,18 @@
 package com.angelozero.domain;
 
+import com.angelozero.ui.Drawable;
+
 import java.awt.*;
 
-public class Pipe implements GameComponent {
+public class Pipe implements Movable, Drawable {
 
     private static final int WIDTH = 64;
     private static final int HEIGHT = 512;
+
     private final Image sprite;
     private int posX;
     private int posY;
-    private int velocity;
+    private final int velocity;
     private boolean isPassed;
 
     public Pipe(Image sprite, int posX, int posY, int velocity) {
@@ -40,14 +43,14 @@ public class Pipe implements GameComponent {
         return HEIGHT;
     }
 
-
     @Override
     public void move() {
         this.posX += this.velocity;
     }
 
-    public Image getSprite() {
-        return sprite;
+    @Override
+    public void draw(Graphics2D g) {
+        g.drawImage(sprite, xPos(), yPos(), width(), height(), null);
     }
 
     public boolean isPassed() {

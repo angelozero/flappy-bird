@@ -1,42 +1,40 @@
 package com.angelozero.ui;
 
+import com.angelozero.core.GameConstants;
 import com.angelozero.core.GameState;
-import com.angelozero.core.ScoreManager;
-import com.angelozero.domain.Background;
-import com.angelozero.domain.Bird;
-import com.angelozero.domain.Pipe;
-
-import java.util.List;
 
 import java.awt.*;
 
+/**
+ * Renderiza a cena do jogo a partir de um DTO (sem efeitos colaterais de lógica).
+ */
 public class GameRenderer {
-    public void render(Graphics g, Background bg, Bird bird, List<Pipe> pipes, ScoreManager score, GameState gameState) {
+
+    public void render(Graphics g, GameScene scene) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.drawImage(bg.getSprite(), 0, 0, bg.getWidth(), bg.getHeight(), null);
-        g.drawImage(bird.getSprite(), bird.xPos(), bird.yPos(), bird.width(), bird.height(), null);
-        pipes.forEach(p -> g.drawImage(p.getSprite(), p.xPos(), p.yPos(), p.width(), p.height(), null));
-        renderUI(g, score, gameState, bg.getHeight());
+
+        scene.background().draw(g2d);
+        scene.bird().draw(g2d);
+        scene.pipes().forEach(p -> p.draw(g2d));
+
+        renderUI(g, scene);
     }
 
-    private void renderUI(Graphics g, ScoreManager score, GameState gameState, int screenHeight) {
+    private void renderUI(Graphics g, GameScene scene) {
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 32));
+        g.setFont(new Font("Arial", Font.BOLD, GameConstants.SCORE_FONT_SIZE));
 
-        switch (gameState) {
-            case GameState.NEW_GAME ->
-                g.drawString(score.getFormattedScore(), 10, 35);
+        switch (scene.gameState()) {
+            case NEW_GAME, PLAYING ->
+                    g.drawString(scene.score() + "", GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
 
-            case GameState.GAME_OVER -> {
-                score.setRecord(score.getCurrentScoreAsInt());
-                g.drawString("Game Over: " + score.getCurrentScoreAsInt(), 10, 35);
-            }
-
+            case GAME_OVER ->
+                    g.drawString("Game Over: " + scene.score(), GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
         }
 
-        if (score.getRecord() > 0) {
-            g.drawString("Record: " + score.getRecord(), 10, screenHeight - 10);
+        if (scene.record() > 0) {
+            g.drawString("Record: " + scene.record(), GameConstants.SCORE_POS_X, GameConstants.BOARD_HEIGHT - 10);
         }
     }
 }

@@ -1,19 +1,20 @@
 package com.angelozero.domain;
 
+import com.angelozero.core.GameConstants;
+import com.angelozero.ui.Drawable;
+
 import java.awt.*;
 
-public class Background {
+public class Background implements Drawable {
 
-    private Image sprite;
+    private final Image sprite;
     private final int width;
     private final int height;
-    private static final int BOARD_WIDTH = 360;
-    private static final int BOARD_HEIGHT = 640;
 
     public Background(Image sprite) {
         this.sprite = sprite;
-        this.width = BOARD_WIDTH;
-        this.height = BOARD_HEIGHT;
+        this.width = GameConstants.BOARD_WIDTH;
+        this.height = GameConstants.BOARD_HEIGHT;
     }
 
     public Background(Image sprite, int width, int height) {
@@ -30,7 +31,8 @@ public class Background {
         return height;
     }
 
-    public Image getSprite() {
-        return sprite;
+    @Override
+    public void draw(Graphics2D g) {
+        g.drawImage(sprite, 0, 0, width, height, null);
     }
 }

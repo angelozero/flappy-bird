@@ -1,14 +1,17 @@
 package com.angelozero.engine;
 
-import com.angelozero.core.GameLoop;
+import com.angelozero.core.CollisionDetector;
+import com.angelozero.core.GameConstants;
 import com.angelozero.core.GameState;
-import com.angelozero.core.PhysicsEngine;
-import com.angelozero.core.ScoreManager;
+import com.angelozero.core.GameTimer;
+import com.angelozero.core.ScoreService;
 import com.angelozero.domain.Background;
 import com.angelozero.domain.Bird;
 import com.angelozero.domain.Pipe;
 import com.angelozero.ui.GameRenderer;
+import com.angelozero.ui.GameScene;
 import com.angelozero.ui.ImageInfo;
+import com.angelozero.ui.Drawable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,26 +21,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlappyBirdGame extends JPanel implements KeyListener {
+
     private Bird bird;
     private GameState gameState;
     private final Background background;
     private final List<Pipe> pipeList;
     private final GameRenderer gameRenderer;
-    private final GameLoop gameLoop;
-    private final GameLoop pipesLoop;
-    private final ScoreManager scoreManager;
+    private final GameTimer gameTimer;
+    private final GameTimer pipesTimer;
+    private final ScoreService scoreService;
+    private final CollisionDetector collisionDetector;
 
-    public FlappyBirdGame() {
+    public FlappyBirdGame(GameRenderer gameRenderer, ScoreService scoreService, CollisionDetector collisionDetector) {
         this.pipeList = new ArrayList<>();
-        this.gameRenderer = new GameRenderer();
-        this.scoreManager = new ScoreManager();
+        this.gameRenderer = gameRenderer;
+        this.scoreService = scoreService;
+        this.collisionDetector = collisionDetector;
         this.gameState = GameState.NEW_GAME;
         this.background = new Background(ImageInfo.BACKGROUND.getSprite());
-        this.bird = new Bird(background, ImageInfo.BIRD.getSprite(), -15, 1);
-
-        gameLoop = new GameLoop(1000 / 60, _ -> updateGame());
-        pipesLoop = new GameLoop(1500, _ -> placePipes());
-        startTimers();
+        this.bird = new Bird(background, ImageInfo.BIRD.getSprite(),
+                GameConstants.BIRD_FLAP_VELOCITY, GameConstants.BIRD_GRAVITY);
+        this.gameTimer = new GameTimer(GameConstants.TICK_MS, _ -> updateGame());
+        this.pipesTimer = new GameTimer(GameConstants.PIPE_SPAWN_INTERVAL_MS, _ -> placePipes());
 
         setPreferredSize(new Dimension(background.getWidth(), background.getHeight()));
         setFocusable(true);
@@ -47,17 +52,38 @@ public class FlappyBirdGame extends JPanel implements KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        gameRenderer.render(g, background, bird, pipeList, scoreManager, gameState);
+        GameScene scene = buildScene();
+        gameRenderer.render(g, scene);
+    }
+
+    private GameScene buildScene() {
+        List<Drawable> pipes = pipeList.stream()
+                .map(p -> (Drawable) p)
+                .toList();
+        return new GameScene(
+                background,
+                bird,
+                pipes,
+                scoreService.getCurrentScoreAsInt(),
+                scoreService.getRecord(),
+                gameState
+        );
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            bird.setVelocity(-15);
-            if (gameState == GameState.GAME_OVER) {
-                resetGame();
-            }
+        if (e.getKeyCode() != KeyEvent.VK_SPACE) {
+            return;
         }
+        if (gameState == GameState.GAME_OVER) {
+            resetGame();
+            return;
+        }
+        if (gameState == GameState.NEW_GAME) {
+            gameState = GameState.PLAYING;
+            startTimers();
+        }
+        bird.setVelocity(GameConstants.BIRD_FLAP_VELOCITY);
     }
 
     @Override
@@ -69,58 +95,64 @@ public class FlappyBirdGame extends JPanel implements KeyListener {
     }
 
     private void placePipes() {
-        var topPipe = new Pipe(ImageInfo.PIPE_TOP.getSprite(), background.getWidth(), Pipe.getRandomPlace(background.getHeight()), -2);
-        var pipesSpace = background.getHeight() / 4;
-        var bottomPipe = new Pipe(ImageInfo.PIPE_BOTTOM.getSprite(), background.getWidth(), topPipe.yPos() + topPipe.height() + pipesSpace, -2);
+        int pipeVelocity = GameConstants.PIPE_VELOCITY;
+        var topPipe = new Pipe(ImageInfo.PIPE_TOP.getSprite(), background.getWidth(),
+                Pipe.getRandomPlace(background.getHeight()), pipeVelocity);
+        int pipesSpace = background.getHeight() / 4;
+        var bottomPipe = new Pipe(ImageInfo.PIPE_BOTTOM.getSprite(), background.getWidth(),
+                topPipe.yPos() + topPipe.height() + pipesSpace, pipeVelocity);
 
         pipeList.add(topPipe);
         pipeList.add(bottomPipe);
     }
 
     private void updateGame() {
+        if (gameState != GameState.PLAYING) {
+            return;
+        }
         bird.move();
 
-        if (PhysicsEngine.isOutOfBounds(bird, background.getHeight())) {
+        if (collisionDetector.isOutOfBounds(bird, background.getHeight())) {
             endGame();
-
-        } else {
-            pipeList.forEach(pipe -> {
-                pipe.move();
-
-                if (PhysicsEngine.checkCollision(bird, pipe)) {
-                    endGame();
-                }
-
-                if (!pipe.isPassed() && bird.xPos() > pipe.xPos() + pipe.width()) {
-                    pipe.setPassed(true);
-                    scoreManager.increment();
-                }
-            });
-
-            repaint();
+            return;
         }
+
+        for (Pipe pipe : pipeList) {
+            pipe.move();
+            if (collisionDetector.checkCollision(bird, pipe)) {
+                endGame();
+                return;
+            }
+            if (!pipe.isPassed() && bird.xPos() > pipe.xPos() + pipe.width()) {
+                pipe.setPassed(true);
+                scoreService.increment();
+            }
+        }
+
+        repaint();
     }
 
     private void startTimers() {
-        gameLoop.start();
-        pipesLoop.start();
+        gameTimer.start();
+        pipesTimer.start();
     }
 
     private void stopTimers() {
-        gameLoop.stop();
-        pipesLoop.stop();
+        gameTimer.stop();
+        pipesTimer.stop();
     }
 
     private void resetGame() {
-        bird = new Bird(background, ImageInfo.BIRD.getSprite(), -15, 1);
+        bird = new Bird(background, ImageInfo.BIRD.getSprite(),
+                GameConstants.BIRD_FLAP_VELOCITY, GameConstants.BIRD_GRAVITY);
         pipeList.clear();
-        scoreManager.reset();
-        gameLoop.start();
-        pipesLoop.start();
+        scoreService.reset();
         gameState = GameState.NEW_GAME;
+        repaint();
     }
 
     private void endGame() {
+        scoreService.updateRecordIfBetter(scoreService.getCurrentScoreAsInt());
         gameState = GameState.GAME_OVER;
         stopTimers();
         repaint();

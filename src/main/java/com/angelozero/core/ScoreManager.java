@@ -1,6 +1,9 @@
 package com.angelozero.core;
 
-public class ScoreManager {
+public class ScoreManager implements ScoreService {
+
+    private static final double SCORE_PER_PIPE = GameConstants.SCORE_PER_PIPE;
+
     private double currentScore;
     private int record;
     private int finalScore;
@@ -11,30 +14,30 @@ public class ScoreManager {
         this.finalScore = 0;
     }
 
+    @Override
     public void increment() {
-        this.currentScore += 0.5;
+        this.currentScore += SCORE_PER_PIPE;
     }
 
-    public void setRecord(int score) {
+    @Override
+    public void reset() {
+        this.currentScore = 0;
+    }
+
+    @Override
+    public void updateRecordIfBetter(int score) {
         if (score > record) {
             record = score;
             finalScore = (int) currentScore;
         }
     }
 
-    public void reset() {
-        this.currentScore = 0;
-    }
-
     public int getCurrentScoreAsInt() {
         return (int) currentScore;
     }
 
+    @Override
     public int getRecord() {
         return Math.max(finalScore, record);
-    }
-
-    public String getFormattedScore() {
-        return String.valueOf(getCurrentScoreAsInt());
     }
 }
