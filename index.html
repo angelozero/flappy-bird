@@ -5,11 +5,27 @@
     <title>Flappy Bird Java</title>
     <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
 </head>
-<body style="margin: 0; overflow: hidden; background: #000;">
+<body style="margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh;">
+
+<div id="container"></div>
+
 <script>
-    cheerpjInit();
-    // O caminho aponta para o JAR que será gerado dentro da pasta /target/
-    cheerpjRunJar("/app/target/flappybird-1.0-SNAPSHOT.jar");
+    // Esta função garante que o CheerpJ só rode após o script externo carregar
+    window.onload = async function() {
+        if (typeof cheerpjInit !== 'undefined') {
+            // Inicializa o runtime
+            await cheerpjInit();
+
+            // Cria o display do Java dentro da página
+            cheerpjCreateDisplay(800, 600);
+
+            // Executa o JAR.
+            // IMPORTANTE: Verifique se o nome do arquivo no /target/ é exatamente este
+            cheerpjRunJar("/app/target/flappybird-1.0-SNAPSHOT.jar");
+        } else {
+            console.error("Erro: O loader do CheerpJ não foi carregado corretamente.");
+        }
+    };
 </script>
 </body>
 </html>
