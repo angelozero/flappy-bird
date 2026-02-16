@@ -203,7 +203,7 @@ o jogo considera que ele morreu e entra em estado de **GAME_OVER**.
 
 ### Pré‑requisitos
 
-- **Java JDK 21+** (o projeto está configurado para Java 25 no `pom.xml`, mas qualquer versão compatível com Swing e Maven pode ser ajustada).
+- **Java JDK 21+** (o projeto está configurado para Java 21 no `pom.xml`, mas pode ser ajustado se necessário).
 - **Maven** instalado e disponível no `PATH`.
 
 ### Passos
@@ -224,7 +224,7 @@ mvn compile
 - **Executar o jogo**:
 
 ```bash
-mvn exec:java -Dexec.mainClass=\"com.angelozero.Main\"
+mvn exec:java
 ```
 
 Ou, se preferir, execute a classe `Main` diretamente pela sua IDE.

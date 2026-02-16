@@ -41,8 +41,8 @@ public class FlappyBirdGame extends JPanel implements KeyListener {
         this.background = new Background(ImageInfo.BACKGROUND.getSprite());
         this.bird = new Bird(background, ImageInfo.BIRD.getSprite(),
                 GameConstants.BIRD_FLAP_VELOCITY, GameConstants.BIRD_GRAVITY);
-        this.gameTimer = new GameTimer(GameConstants.TICK_MS, _ -> updateGame());
-        this.pipesTimer = new GameTimer(GameConstants.PIPE_SPAWN_INTERVAL_MS, _ -> placePipes());
+        this.gameTimer = new GameTimer(GameConstants.TICK_MS, ignoredEvent -> updateGame());
+        this.pipesTimer = new GameTimer(GameConstants.PIPE_SPAWN_INTERVAL_MS, ignoredEvent -> placePipes());
 
         setPreferredSize(new Dimension(background.getWidth(), background.getHeight()));
         setFocusable(true);
