@@ -1,7 +1,6 @@
 package com.angelozero.ui;
 
 import com.angelozero.core.GameConstants;
-import com.angelozero.core.GameState;
 
 import java.awt.*;
 
@@ -26,11 +25,18 @@ public class GameRenderer {
         g.setFont(new Font("Arial", Font.BOLD, GameConstants.SCORE_FONT_SIZE));
 
         switch (scene.gameState()) {
-            case NEW_GAME, PLAYING ->
-                    g.drawString(scene.score() + "", GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
+            case NEW_GAME:
+            case PLAYING:
+                g.drawString(scene.score() + "", GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
+                break;
 
-            case GAME_OVER ->
-                    g.drawString("Game Over: " + scene.score(), GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
+            case GAME_OVER:
+                g.drawString("Game Over: " + scene.score(), GameConstants.SCORE_POS_X, GameConstants.SCORE_POS_Y);
+                break;
+
+            default:
+                // É sempre boa prática ter um default no Java antigo
+                break;
         }
 
         if (scene.record() > 0) {

@@ -19,6 +19,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FlappyBirdGame extends JPanel implements KeyListener {
 
@@ -59,7 +60,7 @@ public class FlappyBirdGame extends JPanel implements KeyListener {
     private GameScene buildScene() {
         List<Drawable> pipes = pipeList.stream()
                 .map(p -> (Drawable) p)
-                .toList();
+                .collect(Collectors.toList());
         return new GameScene(
                 background,
                 bird,
